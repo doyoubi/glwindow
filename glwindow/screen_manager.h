@@ -3,7 +3,7 @@
 
 #include <iostream>
 #include "GLFW/glfw3.h"
-#include "glm/vec3.hpp"
+#include "glm/glm.hpp"
 
 namespace dyb
 {
@@ -17,7 +17,8 @@ namespace dyb
             static ScreenManager * instance();
             // default is full screen
             void set_draw_square(int left_bottom_x, int left_bottom_y, int width, int height);
-            void draw(int x, int y, glm::vec3 rgb);
+            void drawPoint(const glm::ivec2 & point, const glm::vec3 & rgb);
+            void drawLine(const glm::ivec2 & start, const glm::ivec2 & end, const glm::vec3 & rgb);
             void drawToGL();
 
             typedef const GLfloat (*image)[window_width][3];

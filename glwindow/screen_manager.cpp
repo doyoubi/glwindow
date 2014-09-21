@@ -1,10 +1,10 @@
+#include <iostream>
 #include "screen_manager.h"
-
-//#pragma comment(lib, "glew32.lib")
 
 namespace dyb
 {
     using glm::vec3;
+    using glm::ivec2;
 
     ScreenManager * ScreenManager::instance()
     {
@@ -49,22 +49,43 @@ namespace dyb
         height_of_draw_square = height;
     }
 
-    void ScreenManager::draw(int x, int y, vec3 rgb)
+    void ScreenManager::drawPoint(const ivec2 & p, const vec3 & rgb)
     {
-        if(x < 0 || x >= width_of_draw_square 
-        || y < 0 || y >= height_of_draw_square)
+        if(p.x < 0 || p.x >= width_of_draw_square 
+        || p.y < 0 || p.y >= height_of_draw_square)
         {
             std::cerr<< "draw out of bound!" <<std::endl;
             return;
         }
-        screen[left_bottom_y_of_draw_square + y][left_bottom_x_of_draw_square + x][0] = rgb.r;
-        screen[left_bottom_y_of_draw_square + y][left_bottom_x_of_draw_square + x][1] = rgb.g;
-        screen[left_bottom_y_of_draw_square + y][left_bottom_x_of_draw_square + x][2] = rgb.b;
+        screen[left_bottom_y_of_draw_square + p.y][left_bottom_x_of_draw_square + p.x][0] = rgb.r;
+        screen[left_bottom_y_of_draw_square + p.y][left_bottom_x_of_draw_square + p.x][1] = rgb.g;
+        screen[left_bottom_y_of_draw_square + p.y][left_bottom_x_of_draw_square + p.x][2] = rgb.b;
     }
 
     const GLfloat (*ScreenManager::operator[](int height)const)[3]
     { 
         return screen[height];
+    }
+
+    void recursiveDraw(ScreenManager * sm, const ivec2 & start, const ivec2 & end, const vec3 & rgb)
+    {
+        ivec2 delta = glm::abs(start - end);
+        if (delta.x <= 1 && delta.y <= 1) return;
+        ivec2 mid = (start + end) / 2;
+        using namespace std;
+        auto echoVec2 = [](const ivec2 & v){
+            cout << v.x << ' ' << v.y << endl;
+        };
+        sm->drawPoint(mid, rgb);
+        recursiveDraw(sm, start, mid, rgb);
+        recursiveDraw(sm, mid, end, rgb);
+    }
+
+    void ScreenManager::drawLine(const ivec2 & start, const ivec2 & end, const vec3 & rgb)
+    {
+        drawPoint(start, rgb);
+        drawPoint(end, rgb);
+        recursiveDraw(this, start, end, rgb);
     }
 
 }
