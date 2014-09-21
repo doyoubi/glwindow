@@ -3,6 +3,8 @@
 
 #include "GLFW/glfw3.h"
 
+#include "screen_manager.h"
+
 namespace dyb
 {
     class Window
@@ -12,7 +14,9 @@ namespace dyb
         ~Window();
         typedef void (*LoopFunc)();
         void runLoop(LoopFunc);
+        ScreenManager * getScreenManager() { return &screenManager; }
     private:
+        ScreenManager screenManager;
         int _width, _height;
         GLFWwindow* window;
     };

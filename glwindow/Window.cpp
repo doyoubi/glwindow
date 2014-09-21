@@ -19,7 +19,7 @@ namespace dyb
     }
 
     Window::Window(int width, int height)
-        : _width(width), _height(height)
+        : _width(width), _height(height), screenManager(width, height)
     {
         glfwSetErrorCallback(error_callback);
         if (!glfwInit())
@@ -39,7 +39,7 @@ namespace dyb
         while (!glfwWindowShouldClose(window))
         {
             loopFunc();
-
+            screenManager.drawToGL();
             glfwSwapBuffers(window);
             glfwPollEvents();
         }

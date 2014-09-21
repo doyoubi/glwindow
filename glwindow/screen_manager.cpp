@@ -6,39 +6,30 @@ namespace dyb
     using glm::vec3;
     using glm::ivec2;
 
-    ScreenManager * ScreenManager::instance()
-    {
-        static ScreenManager sm;
-        return &sm;
-    }
-
     void ScreenManager::drawToGL()
     {
-        glDrawPixels(window_width, ScreenManager::window_height,
-            GL_RGB, GL_FLOAT, dyb::ScreenManager::instance()->generate_screen_image());
+        glDrawPixels(getWidth(), getHeight(), GL_RGB, GL_FLOAT, generate_screen_image());
     }
 
-    ScreenManager::ScreenManager()
+    ScreenManager::ScreenManager(int width, int height)
+        : _image(height, width)
     {
-        for(int x = 0; x < window_width; x++)
-            for(int y = 0; y < window_height; y++)
-                for(int i = 0; i < 3; i++)
-                    screen[y][x][i] = 0;
-        left_bottom_x_of_draw_square = 0;
-        left_bottom_y_of_draw_square = 0;
-        width_of_draw_square = window_width;
-        height_of_draw_square = window_height;
+        const vec3 zero(0);
+        for(int x = 0; x < _image.get_width(); x++)
+        for (int y = 0; y < _image.get_height(); y++)
+            _image[x][y] = zero;
+        set_draw_square(0, 0, width, height);
     }
 
-    ScreenManager::image ScreenManager::generate_screen_image()const
+    const vec3 * ScreenManager::generate_screen_image()const
     { 
-        return screen;
+        return _image.getRawData();
     }
 
     void ScreenManager::set_draw_square(int left_bottom_x, int left_bottom_y, int width, int height)
     {
         if(left_bottom_x < 0 || left_bottom_y < 0 || width < 0 || height < 0
-        || left_bottom_x+width > window_width || left_bottom_y+height > window_height )
+        || left_bottom_x+width > getWidth() || left_bottom_y+height > getHeight())
         {
             std::cerr<< "invalid square start point or size" <<std::endl;
             exit(1);
@@ -57,14 +48,7 @@ namespace dyb
             std::cerr<< "draw out of bound!" <<std::endl;
             return;
         }
-        screen[left_bottom_y_of_draw_square + p.y][left_bottom_x_of_draw_square + p.x][0] = rgb.r;
-        screen[left_bottom_y_of_draw_square + p.y][left_bottom_x_of_draw_square + p.x][1] = rgb.g;
-        screen[left_bottom_y_of_draw_square + p.y][left_bottom_x_of_draw_square + p.x][2] = rgb.b;
-    }
-
-    const GLfloat (*ScreenManager::operator[](int height)const)[3]
-    { 
-        return screen[height];
+        _image[left_bottom_y_of_draw_square + p.y][left_bottom_x_of_draw_square + p.x] = rgb;
     }
 
     void recursiveDraw(ScreenManager * sm, const ivec2 & start, const ivec2 & end, const vec3 & rgb)
@@ -72,10 +56,6 @@ namespace dyb
         ivec2 delta = glm::abs(start - end);
         if (delta.x <= 1 && delta.y <= 1) return;
         ivec2 mid = (start + end) / 2;
-        using namespace std;
-        auto echoVec2 = [](const ivec2 & v){
-            cout << v.x << ' ' << v.y << endl;
-        };
         sm->drawPoint(mid, rgb);
         recursiveDraw(sm, start, mid, rgb);
         recursiveDraw(sm, mid, end, rgb);
