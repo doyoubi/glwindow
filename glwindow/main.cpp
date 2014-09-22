@@ -7,10 +7,6 @@ using std::cout;
 using std::endl;
 using std::cerr;
 
-void loop()
-{
-}
-
 int main()
 {
     dyb::Window win(500, 400);
@@ -21,7 +17,13 @@ int main()
         win.getScreenManager()->drawPoint(glm::ivec2(100, i), glm::vec3(0, 1, 0));
     // draw a blue line
     win.getScreenManager()->drawLine(glm::ivec2(0, 0), glm::ivec2(250, 200), glm::vec3(0, 0, 1));
+    win.setLoopFunc([&](){
+        static int i = 0;
+        if (i >= 400) return;
+        win.getScreenManager()->drawPoint(glm::ivec2(250, i), glm::vec3(1, 1, 0));
+        i++;
+    });
 
-    win.runLoop(loop);
+    win.runLoop();
     return 0;
 }
