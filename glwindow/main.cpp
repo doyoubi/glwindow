@@ -24,6 +24,10 @@ int main()
         i++;
     });
 
+    win.setMouseButtonFunc([&](int x, int y){
+        win.getScreenManager()->drawPoint(glm::ivec2(x, y), glm::vec3(0, 0, 1));
+    });
+
     win.runLoop();
     return 0;
 }
